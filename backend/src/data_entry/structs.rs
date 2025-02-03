@@ -198,7 +198,7 @@ impl PoliticalGroupVotes {
     }
 
     /// Create `PoliticalGroupVotes` from test data.
-    #[cfg(test)]
+    #[cfg(any(test, fuzzing))]
     pub fn from_test_data(
         number: PGNumber,
         total_count: Count,
@@ -218,7 +218,7 @@ impl PoliticalGroupVotes {
     }
 
     /// Create `PoliticalGroupVotes` from test data with candidate numbers automatically generated starting from 1.
-    #[cfg(test)]
+    #[cfg(any(test, fuzzing))]
     pub fn from_test_data_auto(
         number: PGNumber,
         total_count: Count,

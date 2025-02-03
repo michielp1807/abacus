@@ -485,20 +485,26 @@ fn political_group_numbers(standing: &[&PoliticalGroupStanding]) -> Vec<PGNumber
     standing.iter().map(|s| s.pg_number).collect()
 }
 
-pub fn get_total_seats_from_apportionment_result(result: ApportionmentResult) -> Vec<u64> {
-    result
-        .final_standing
-        .iter()
-        .map(|p| p.total_seats)
-        .collect::<Vec<_>>()
+impl ApportionmentResult {
+    pub fn get_total_seats(&self) -> Vec<u64> {
+        self.final_standing
+            .iter()
+            .map(|p| p.total_seats)
+            .collect::<Vec<_>>()
+    }
+
+    pub fn get_rest_seats(&self) -> Vec<u64> {
+        self.final_standing
+            .iter()
+            .map(|p| p.rest_seats)
+            .collect::<Vec<_>>()
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::{
-        apportionment::{
-            get_total_seats_from_apportionment_result, seat_allocation, ApportionmentError,
-        },
+        apportionment::{seat_allocation, ApportionmentError},
         data_entry::{Count, PoliticalGroupVotes, VotersCounts, VotesCounts},
         election::PGNumber,
         summary::{ElectionSummary, SummaryDifferencesCounts},
@@ -539,7 +545,7 @@ mod tests {
         let totals = get_election_summary(vec![480, 160, 160, 160, 80, 80, 80]);
         let result = seat_allocation(15, &totals).unwrap();
         assert_eq!(result.steps.len(), 0);
-        let total_seats = get_total_seats_from_apportionment_result(result);
+        let total_seats = result.get_total_seats();
         assert_eq!(total_seats, vec![6, 2, 2, 2, 1, 1, 1]);
     }
 
@@ -548,7 +554,7 @@ mod tests {
         let totals = get_election_summary(vec![540, 160, 160, 80, 80, 80, 60, 40]);
         let result = seat_allocation(15, &totals).unwrap();
         assert_eq!(result.steps.len(), 2);
-        let total_seats = get_total_seats_from_apportionment_result(result);
+        let total_seats = result.get_total_seats();
         assert_eq!(total_seats, vec![7, 2, 2, 1, 1, 1, 1, 0]);
     }
 
@@ -558,7 +564,7 @@ mod tests {
         let totals = get_election_summary(vec![808, 59, 58, 57, 56, 55, 54, 53]);
         let result = seat_allocation(15, &totals).unwrap();
         assert_eq!(result.steps.len(), 5);
-        let total_seats = get_total_seats_from_apportionment_result(result);
+        let total_seats = result.get_total_seats();
         assert_eq!(total_seats, vec![12, 1, 1, 1, 0, 0, 0, 0]);
     }
 
@@ -581,7 +587,7 @@ mod tests {
         let totals = get_election_summary(vec![576, 288, 96, 96, 96, 48]);
         let result = seat_allocation(25, &totals).unwrap();
         assert_eq!(result.steps.len(), 0);
-        let total_seats = get_total_seats_from_apportionment_result(result);
+        let total_seats = result.get_total_seats();
         assert_eq!(total_seats, vec![12, 6, 2, 2, 2, 1]);
     }
 
@@ -590,7 +596,7 @@ mod tests {
         let totals = get_election_summary(vec![600, 302, 98, 99, 101]);
         let result = seat_allocation(23, &totals).unwrap();
         assert_eq!(result.steps.len(), 4);
-        let total_seats = get_total_seats_from_apportionment_result(result);
+        let total_seats = result.get_total_seats();
         assert_eq!(total_seats, vec![12, 6, 1, 2, 2]);
     }
 
@@ -600,4 +606,63 @@ mod tests {
         let result = seat_allocation(23, &totals);
         assert_eq!(result, Err(ApportionmentError::DrawingOfLotsNotImplemented));
     }
+
+    #[test]
+    fn my_test() {
+        let totals = get_election_summary(vec![
+            19858427, 0, 50397184, 511, 16777727, 0, 0, 0, 0, 65791, 65787, 0, 0, 0, 65791, 133631,
+            17301755, 0, 0, 65791, 65787, 0, 0, 0, 0, 0, 255, 0, 0, 0, 65791, 65787, 0, 133631,
+            17301755, 0, 33357824, 0, 0, 0, 16777467, 0, 0, 0, 0, 16777727, 0, 0, 0, 0, 65791, 511,
+            0, 0, 0, 0, 0, 65791, 65787, 16777216, 0, 0, 0, 0, 0, 0, 65791, 65787, 0, 0, 511, 0, 0,
+            0, 0, 0, 0, 65791, 65787, 0, 0, 0, 65791, 133631, 17301755, 0, 0, 0, 65791, 65787, 0,
+            133631, 17301755, 0, 33357824, 0, 0, 0, 16777467, 0, 0, 0, 0, 16777727, 0, 0, 0, 0,
+            65791, 511, 0, 0, 0, 0, 255, 0, 0, 16777215, 65791, 65787, 16777216, 0, 0, 0, 0, 0, 0,
+            16777467, 0, 0, 0, 0, 16777727, 0, 0, 0, 0, 16843007, 0, 0, 0, 0, 65791, 65787, 0, 0,
+            511, 0, 0, 0, 133376, 17301755, 0, 33488896, 0, 0, 0, 16777467, 0, 0, 0, 0, 255, 0, 0,
+            0, 65791, 65787, 16777216, 0, 0, 0, 16777467, 0, 0, 0, 0, 16777473, 0, 0, 0, 0, 65791,
+            65787, 0, 0, 511, 0, 0, 0, 255, 0, 0, 0, 65791, 65787, 0, 133631, 17301755, 0,
+            33357824, 0, 0, 0, 16777467, 0, 0, 0, 0, 16777727, 0, 0, 0, 0, 65791, 511, 0, 0, 0, 0,
+            255, 0, 0, 0, 65791, 65787, 16777216, 0, 0, 0, 0, 0, 0, 65791, 65787, 0, 0, 0, 0, 255,
+            0, 16777216, 0, 0, 0, 16777467, 0, 0, 0, 0, 16777727, 0, 0, 0, 0, 16843007, 0, 0, 0, 0,
+            65791, 65787, 0, 0, 511, 0, 0, 0, 133376, 17301755, 0, 33488896, 0, 0, 0, 16777467, 0,
+            0, 0, 0, 255, 0, 0, 0, 65791,
+        ]);
+        let result = seat_allocation(18, &totals).unwrap();
+        let total_seats = result.get_total_seats();
+        assert_eq!(18, total_seats.iter().sum::<u64>());
+    }
+
+    #[test]
+    fn my_test_differential() {
+        let totals = get_election_summary(vec![
+            1572868, 2686980, 18427634, 17901042, 17498112, 11, 2686980, 2686980, 32976626,
+            185273330,
+        ]);
+        let result = seat_allocation(11, &totals).unwrap();
+        let total_seats = result.get_total_seats();
+        assert!(total_seats.iter().eq([0, 0, 0, 0, 0, 0, 0, 0, 2, 9].iter()));
+    }
+
+    #[test]
+    fn my_test_differential_minimized() {
+        let totals = get_election_summary(vec![
+            2712886, 18427634, 17901042, 17498112, 32964612, 185273330,
+        ]);
+        let result = seat_allocation(11, &totals).unwrap();
+        let total_seats = result.get_total_seats();
+        assert!(total_seats.iter().eq([0, 0, 0, 0, 2, 9].iter()));
+    }
+
+    #[test]
+    fn my_test_saba() {
+        let totals = get_election_summary(vec![777, 125, 81]);
+        let result = seat_allocation(5, &totals).unwrap();
+        let total_seats = result.get_total_seats();
+        assert!(total_seats.iter().eq([5, 0, 0].iter()));
+    }
+}
+
+#[cfg(fuzzing)]
+pub mod fuzz_internal {
+    pub use super::fraction::Fraction;
 }

@@ -9,9 +9,7 @@ use crate::{
     utils::serve_api,
 };
 use abacus::{
-    apportionment::{
-        get_total_seats_from_apportionment_result, ElectionApportionmentResponse, Fraction,
-    },
+    apportionment::{ElectionApportionmentResponse, Fraction},
     data_entry::{
         status::ClientState, CandidateVotes, DataEntry, DifferencesCounts, PoliticalGroupVotes,
         PollingStationResults, VotersCounts, VotesCounts,
@@ -38,7 +36,7 @@ async fn test_election_apportionment_works_for_less_than_19_seats(pool: SqlitePo
     assert_eq!(body.apportionment.seats, 15);
     assert_eq!(body.apportionment.quota, Fraction::new(204, 15));
     assert_eq!(body.apportionment.steps.len(), 1);
-    let total_seats = get_total_seats_from_apportionment_result(body.apportionment);
+    let total_seats = body.apportionment.get_total_seats();
     assert_eq!(total_seats, vec![9, 6]);
 }
 
@@ -57,7 +55,7 @@ async fn test_election_apportionment_works_for_19_or_more_seats(pool: SqlitePool
     assert_eq!(body.apportionment.seats, 29);
     assert_eq!(body.apportionment.quota, Fraction::new(102, 29));
     assert_eq!(body.apportionment.steps.len(), 1);
-    let total_seats = get_total_seats_from_apportionment_result(body.apportionment);
+    let total_seats = body.apportionment.get_total_seats();
     assert_eq!(total_seats, vec![17, 12]);
 }
 
