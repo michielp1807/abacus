@@ -1,6 +1,6 @@
 #![no_main]
 
-use abacus::apportionment::{seat_assignment as seat_allocation, ApportionmentError};
+use abacus::apportionment::{ApportionmentError, seat_assignment as seat_allocation};
 use abacus_fuzz::FuzzedElectionSummary;
 use kiesraad_model::{Seats, Votes};
 use libfuzzer_sys::fuzz_target;
