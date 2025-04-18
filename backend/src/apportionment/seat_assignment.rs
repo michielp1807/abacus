@@ -2050,9 +2050,9 @@ mod tests {
         #[test]
         fn exhaustion_two_rounds1() {
             let totals = election_summary_fixture_with_given_candidate_votes(vec![
-                vec![4878,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                vec![689,0,0,0,0],
-                vec![4046,0,0,0],
+                vec![4878, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                vec![689, 0, 0, 0, 0],
+                vec![4046, 0, 0, 0],
             ]);
             let result = seat_assignment(18, &totals).unwrap();
             let total_seats = get_total_seats_from_apportionment_result(&result);
@@ -2065,12 +2065,12 @@ mod tests {
                 vec![337],
                 vec![335],
                 vec![167],
-		vec![2500,0,0,0,0,0,0,0,0,0,0,0],
-		vec![1657],
+                vec![2500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                vec![1657],
             ]);
             let result = seat_assignment(12, &totals).unwrap();
             let total_seats = get_total_seats_from_apportionment_result(&result);
-            assert_eq!(total_seats, [1,1,1,8,1]);
+            assert_eq!(total_seats, [1, 1, 1, 8, 1]);
         }
     }
 }
